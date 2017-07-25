@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+    <a href="/os_selector/create" class="btn btn-default">Create Group</a>
+    <table class="table table-condensed">
+        <tr>
+            <th>Group</th>
+            <th>Vendor</th>
+            <th>Match</th>
+            <th>Image</th>
+            <th>Finally</th>
+            <th>Delete</th>
+        </tr>
+{% for vendor in groups.iteritems() %}
+{% for group in vendor[1].iteritems() %}
+  <tr>
+    <td>{{ group[0] }}</td>
+    <td>{{ vendor[0] }}</td>
+    <td>{{ group[1]['exact_match'] }}{{ group[1]['regex_match'] }}</td>
+    <td>{{ group[1]['image'] }}</td>
+    <td>{{ group[1]['finally'] }}</td>
+    <td><a href="/api/os_selector/{{ vendor[0] }}/{{ group[0] }}" data-method="delete"><button type="button" class="btn btn-warning">Delete</button></a></td>
+  </tr>
+    {%  endfor  %}
+
+{% endfor %}
+    </table>
+{% endblock %}

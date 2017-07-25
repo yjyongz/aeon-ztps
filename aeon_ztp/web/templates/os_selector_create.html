@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Create OS-Selector Group</h1>
+    {% import "bootstrap/wtf.html" as wtf %}
+    {{ wtf.quick_form(form, form_type="horizontal") }}
+    {% if data %}
+    {{ data }}
+    {% endif %}
+{% endblock %}

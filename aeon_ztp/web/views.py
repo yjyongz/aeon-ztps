@@ -12,12 +12,13 @@ import errno
 import os
 import pwd
 import re
+import json
 
 import aeon_ztp
 import magic
-from flask import Blueprint, send_from_directory, render_template, url_for, g, request, flash, redirect
+from flask import Blueprint, send_from_directory, render_template, url_for, g, request, flash, redirect, session
 from flask import current_app as app
-# from flaskext.markdown import Markdown
+import requests
 from isc_dhcp_leases.iscdhcpleases import IscDhcpLeases
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
@@ -29,6 +30,7 @@ from werkzeug.utils import secure_filename
 from aeon_ztp import ztp_os_selector
 from aeon_ztp.api import models
 from ztp_sudo import flush_dhcp
+from aeon_ztp.forms import OsSelectorForm
 
 _syslog_file = "/var/log/syslog"
 _dhcp_leases_file = '/var/lib/dhcp/dhcpd.leases'
@@ -612,3 +614,53 @@ def firmware():
     for vendor in ztp_os_selector.vendor_list():
         os_list.append(ztp_os_selector.Vendor(vendor))
     return render_template('firmware.html', list=os_list)
+
+
+@web.route('/os_selector')
+def os_selector():
+    """
+    Allows editing of os_selector.cfg files
+    """
+    groups = {}
+    for vendor in ztp_os_selector.vendor_list():
+        groups[vendor] = requests.request('GET', 'http://127.0.0.1/api/os_selector/{}'.format(vendor)).json()
+    return render_template('os_selector.html', groups=groups)
+
+
+@web.route('/os_selector/create', methods=['GET', 'POST'])
+def os_selector_create():
+    """
+    Create os_selector.cfg groups.
+    """
+    form = OsSelectorForm(request.form)
+    if form.validate_on_submit():
+        group = form.group.data
+        vendor = form.vendor.data
+        os_match_type = form.os_match_type.data
+        version_match = form.version_match.data
+        finally_script = form.finally_script.data
+        image = form.image.data
+        fact_match_type = form.fact_match.fact_match_type.data
+        fact_match_string = form.fact_match.fact_match_string.data
+        os_selector_data = {group:
+                                {os_match_type: version_match,
+                                'finally': finally_script,
+                                'image': image}}
+        print os_selector_data
+        print json.dumps(os_selector_data)
+        requests.put('http://localhost/api/os_selector/{}'.format(vendor), json=os_selector_data)
+        flash('Created OS Selector Group "{}'.format(group), 'success')
+        return redirect(url_for('web.os_selector'))
+    return render_template('os_selector_create.html', form=form)
+
+
+@web.route('/os_selector/<vendor_name>/delete', methods=['POST'])
+def os_selector_delete(vendor_name):
+    """
+    Delete an os_selector.cfg group.
+    """
+    form = OsSelectorForm(request.form)
+    if form.validate_on_submit():
+        group = form.group.data
+        requests.delete('http://localhost/api/os_selector/{vendor}/{group}'.format(vendor=vendor_name, group=group))
+    return redirect(url_for('web.os_selector'))

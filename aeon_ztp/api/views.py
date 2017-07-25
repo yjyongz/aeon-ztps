@@ -83,7 +83,7 @@ def api_os_selector_post(os_name):
     """
     from_dir = path.join(_AEON_TOPDIR, 'etc', 'profiles', os_name, 'os-selector.cfg')
     os_selector = yaml.safe_load(open(from_dir))
-    rqst_data = request.get_json()
+    rqst_data = request.get_json(force=True)
     print rqst_data
     # Check to see if group already exists in os-selector.cfg
     if os_selector:
@@ -102,7 +102,7 @@ def api_os_selector_put(os_name):
     Used for appending/updating a single entity (or iterable of entities) into the os-selector.conf file.
     :param os_name: Name of the device OS.
     :request: JSON formatted os-selector entry.
-                Ex: '{"default": {"finally": "finally", "exact_match": "4.16.6M", "image": "EOS-4.16.6M.swi"}'
+                Ex: '{"default": {"finally": "finally", "exact_match": "4.16.6M", "image": "EOS-4.16.6M.swi"}}'
     :return:    Updates applied
                 204 if item was updated
                 201 if item was created
@@ -110,7 +110,6 @@ def api_os_selector_put(os_name):
     from_dir = path.join(_AEON_TOPDIR, 'etc', 'profiles', os_name, 'os-selector.cfg')
     os_selector = yaml.safe_load(open(from_dir))
     rqst_data = request.get_json()
-    print rqst_data
     # Check to see if group already exists in os-selector.cfg
     if all(item in os_selector.items() for item in rqst_data.items()):
         status = 204
@@ -134,6 +133,7 @@ def api_os_selector_delete(os_name, group_name):
         return group_name
     else:
         abort(404)
+
 
 @api.route('/api/env')
 def api_env():

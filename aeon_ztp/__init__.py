@@ -7,9 +7,13 @@ from flask import Flask
 from config import config
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flask_bootstrap import Bootstrap
+from flask_wtf.csrf import CSRFProtect
 
 db = SQLAlchemy()
 ma = Marshmallow()
+bs = Bootstrap()
+csrf = CSRFProtect()
 
 
 def create_app(conf=None):
@@ -21,10 +25,13 @@ def create_app(conf=None):
     app.config.from_object(config[conf])
     db.init_app(app)
     ma.init_app(app)
+    bs.init_app(app)
+    csrf.init_app(app)
     from aeon_ztp.api.views import api
     from aeon_ztp.web.views import web
     app.register_blueprint(api)
     app.register_blueprint(web)
+    csrf.exempt(api)
 
     @app.before_first_request
     def initialize_database():

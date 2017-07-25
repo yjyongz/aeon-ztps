@@ -25,6 +25,29 @@ def vendor_list():
     return ['nxos', 'eos', 'cumulus']
 
 
+def fact_match_list():
+    """
+    Returns a list of tuples of all available match criteria for os-selector.
+    Primarily used for WTF to create a SelectField.
+    Returns:
+        list: List of all match criteria
+    """
+    criteria = [('os_name', 'OS Name'),
+                 ('vendor', 'Vendor'),
+                 ('hw_part_number', 'Hardware Part Number'),
+                 ('hostname', 'Hostname'),
+                 ('fqdn', 'FQDN'),
+                 ('virtual', 'Virtual'),
+                 ('service_tag', 'Service Tag'),
+                 ('os_version', 'OS Version'),
+                 ('hw_version', 'Hardware Version'),
+                 ('mac_address', 'MAC Address'),
+                 ('serial_number', 'Serial Number'),
+                 ('hw_model', 'Hardware Model'),
+                 ('ip_addr', 'IP Address')]
+    return criteria
+
+
 def load_yaml(filename):
     """ Loads a YAML file from the filesystem and converts it to a usable python dictionary.
 

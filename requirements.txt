@@ -22,3 +22,5 @@ pexpect==4.0.1
 paramiko==1.17.2
 aeon-venos[nxos,cumulus,ubuntu,eos,centos]
 retrying
+Flask-WTF==0.14.2
+Flask-Bootstrap==3.3.7.1
